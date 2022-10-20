@@ -1,23 +1,95 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from "react";
 
 function App() {
+  const InitialForm = {
+    amount: "",
+    description: "",
+    date: "",
+  };
+  const [form, setForm] = useState(InitialForm);
+
+  const [transactions, setTransactions] = useState([]);
+
+  useEffect(
+    () => {
+      fetchTransactions();
+    },
+    [
+      /* transactions*/
+    ]
+  );
+
+  async function fetchTransactions() {
+    const res = await fetch("http://localhost:4000/transaction");
+    const { data } = await res.json();
+    setTransactions(data);
+  }
+
+  function handleInput(e) {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    const res = await fetch("http://localhost:4000/transaction", {
+      method: "POST",
+      body: JSON.stringify(form),
+      headers: {
+        "content-type": "application/json",
+      },
+    });
+    if (res.ok) {
+      setForm(InitialForm);
+      fetchTransactions();
+    }
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="number"
+          name="amount"
+          value={form.amount}
+          onChange={handleInput}
+          placeholder="Enter transaction amount"
+        />
+        <input
+          type="string"
+          name="description"
+          value={form.description}
+          onChange={handleInput}
+          placeholder="Enter transaction details"
+        />
+        <input
+          type="date"
+          name="date"
+          value={form.date}
+          onChange={handleInput}
+        />
+        <button type="submit">Submit</button>
+      </form>
+
+      <br />
+
+      <section>
+        <table>
+          <thead>
+            <th>Amount</th>
+            <th>Description</th>
+            <th>Date</th>
+          </thead>
+          <tbody>
+            {transactions.map((trx) => (
+              <tr key={trx._id}>
+                <td>{trx.amount}</td>
+                <td>{trx.description}</td>
+                <td>{trx.date}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
     </div>
   );
 }
