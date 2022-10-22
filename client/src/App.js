@@ -3,13 +3,6 @@ import AppBar from "./components/AppBar.js";
 import TransactionForm from "./components/TransactionForm.js";
 
 function App() {
-  const InitialForm = {
-    amount: "",
-    description: "",
-    date: "",
-  };
-  const [form, setForm] = useState(InitialForm);
-
   const [transactions, setTransactions] = useState([]);
 
   useEffect(
@@ -27,29 +20,10 @@ function App() {
     setTransactions(data);
   }
 
-  function handleInput(e) {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  }
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    const res = await fetch("http://localhost:4000/transaction", {
-      method: "POST",
-      body: JSON.stringify(form),
-      headers: {
-        "content-type": "application/json",
-      },
-    });
-    if (res.ok) {
-      setForm(InitialForm);
-      fetchTransactions();
-    }
-  }
-
   return (
     <div>
       <AppBar />
-      <TransactionForm />
+      <TransactionForm fetchTransactions={fetchTransactions} />
 
       <br />
 

@@ -14,7 +14,7 @@ const InitialForm = {
   date: new Date(),
 };
 
-export default function TransactionForm() {
+export default function TransactionForm({ fetchTransactions }) {
   const [form, setForm] = useState(InitialForm);
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -35,7 +35,7 @@ export default function TransactionForm() {
     });
     if (res.ok) {
       setForm(InitialForm);
-      // fetchTransactions();
+      fetchTransactions();
     }
   }
 
