@@ -51,30 +51,6 @@ function App() {
       <AppBar />
       <TransactionForm />
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="number"
-          name="amount"
-          value={form.amount}
-          onChange={handleInput}
-          placeholder="Enter transaction amount"
-        />
-        <input
-          type="string"
-          name="description"
-          value={form.description}
-          onChange={handleInput}
-          placeholder="Enter transaction details"
-        />
-        <input
-          type="date"
-          name="date"
-          value={form.date}
-          onChange={handleInput}
-        />
-        <button type="submit">Submit</button>
-      </form>
-
       <br />
 
       <section>

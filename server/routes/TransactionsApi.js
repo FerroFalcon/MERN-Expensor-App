@@ -5,6 +5,7 @@ const router = Router();
 
 router.get("/", async (req, res) => {
   const transaction = await Transaction.find({}).sort({ createdAt: -1 });
+  console.log(transaction);
   res.json({ data: transaction });
 });
 
