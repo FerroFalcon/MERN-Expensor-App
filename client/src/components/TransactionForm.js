@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
@@ -7,6 +7,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import Button from "@mui/material/Button";
+import { create } from "@mui/material/styles/createTransitions";
 
 const InitialForm = {
   amount: "",
@@ -14,8 +15,18 @@ const InitialForm = {
   date: new Date(),
 };
 
-export default function TransactionForm({ fetchTransactions }) {
+export default function TransactionForm({
+  fetchTransactions,
+  editTransaction,
+}) {
   const [form, setForm] = useState(InitialForm);
+
+  useEffect(() => {
+    if (editTransaction.amount !== undefined) {
+      setForm(editTransaction);
+    }
+  }, [editTransaction]);
+
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
@@ -26,6 +37,17 @@ export default function TransactionForm({ fetchTransactions }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    const res = editTransaction.amount === undefined ? create() : update();
+  }
+
+  function reload(res) {
+    if (res.ok) {
+      setForm(InitialForm);
+      fetchTransactions();
+    }
+  }
+
+  async function create() {
     const res = await fetch("http://localhost:4000/transaction", {
       method: "POST",
       body: JSON.stringify(form),
@@ -33,16 +55,27 @@ export default function TransactionForm({ fetchTransactions }) {
         "content-type": "application/json",
       },
     });
-    if (res.ok) {
-      setForm(InitialForm);
-      fetchTransactions();
-    }
+    reload(res);
+  }
+
+  async function update() {
+    const res = await fetch(
+      `http://localhost:4000/transaction/${editTransaction._id}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(form),
+        headers: {
+          "content-type": "application/json",
+        },
+      }
+    );
+    reload(res);
   }
 
   return (
     <Card sx={{ minWidth: 275, marginTop: 10 }}>
       <CardContent>
-        <Typography sx={{ marginRight: 5 }} variant="h6">
+        <Typography sx={{ marginRight: 5, marginBottom: 1 }} variant="h6">
           Add New Transaction
         </Typography>
         <form onSubmit={handleSubmit}>
@@ -77,9 +110,15 @@ export default function TransactionForm({ fetchTransactions }) {
               )}
             />
           </LocalizationProvider>
-          <Button type="submit" variant="contained">
-            Submit
-          </Button>
+          {editTransaction.amount === undefined ? (
+            <Button type="submit" variant="contained">
+              Submit
+            </Button>
+          ) : (
+            <Button type="submit" variant="secondary">
+              Update
+            </Button>
+          )}
         </form>
       </CardContent>
     </Card>
